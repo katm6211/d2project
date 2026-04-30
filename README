@@ -1,0 +1,5 @@
+I'll have 5 scenes in AdventureScene: Starting Space #0, Space #1, Space #2.1, Space #2.2, & Space #3. 
+And I'll have 2 scenes not based in AdventureScene: The opening (or the game menu) and the end credits.
+The methods I'll add to simplify repetitive aspects of my scenes is storing object parameters and preventing repetitive scenes. 
+There will be multiple interactable objects in the game e.g. berries, desk, door, etc. 
+All of the assets will be created by me - I'll mostly be using piskel. 
