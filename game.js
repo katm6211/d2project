@@ -96,6 +96,9 @@ class Intro extends Phaser.Scene {
     constructor() {
         super('intro')
     }
+    preload() {
+        this.image.load('bg', 'Assets/Sprite/Background_plain.png')
+    }
     create() {
         this.add.text(50,50, "Adventure awaits!").setFontSize(50);
         this.add.text(50,100, "Click anywhere to begin.").setFontSize(20);
