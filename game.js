@@ -2,8 +2,55 @@ class Demo1 extends AdventureScene {
     constructor() {
         super("demo1", "First Room");
     }
+    preload() {
+        this.load.setBaseURL('https://katm6211.github.io/d2project/');
+        this.load.image('bg', 'Assets/Sprite/Background_plain.png');
+        this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite.png', { frameWidth: 16, frameHeight: 32 });
+    }
+
 
     onEnter() {
+        const { width, height } = this.scale;
+        const bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
+        const sprite = this.physics.add.sprite(100, 450, 'sprite');
+
+
+
+        this.input.on('pointerdown', (pointer) => {
+
+            this.physics.moveToObject(sprite, pointer, 200);
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 0, end: 3 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'front',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 7, end: 9 }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'back',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 10, end: 12 }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+ 
+
+
+
+            if (pointer.x < totalsprite.x) {
+                right.anims.play('left', true);
+            } else {
+                player.anims.play('right', true);
+            }
+        });
+
+
 
         let clip = this.add.text(this.w * 0.3, this.w * 0.3, "📎 paperclip")
             .setFontSize(this.s * 2)
@@ -96,14 +143,13 @@ class Intro extends Phaser.Scene {
     constructor() {
         super('intro')
     }
-    preload() {
-        this.image.load('bg', 'Assets/Sprite/Background_plain.png')
-    }
+
     create() {
-        this.add.text(50,50, "Adventure awaits!").setFontSize(50);
-        this.add.text(50,100, "Click anywhere to begin.").setFontSize(20);
+
+        this.add.text(50, 50, "Adventure awaits!").setFontSize(50);
+        this.add.text(50, 100, "Click anywhere to begin.").setFontSize(20);
         this.input.on('pointerdown', () => {
-            this.cameras.main.fade(1000, 0,0,0);
+            this.cameras.main.fade(1000, 0, 0, 0);
             this.time.delayedCall(1000, () => this.scene.start('demo1'));
         });
     }
