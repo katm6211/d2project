@@ -58,6 +58,7 @@ class Demo1 extends AdventureScene {
         const { width, height } = this.scale;
         const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
         const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4);
+        const door = this.door = this.physics.add.sprite()
 
         this.anims.create({
             key: 'left',
@@ -146,7 +147,7 @@ class Demo1 extends AdventureScene {
                 });
             })
 
-        let door = this.add.text(this.w * 0.1, this.w * 0.15, "🚪 locked door")
+ /*       let door = this.add.text(this.w * 0.1, this.w * 0.15, "🚪 locked door")
             .setFontSize(this.s * 2)
             .setInteractive()
             .on('pointerover', () => {
@@ -163,7 +164,7 @@ class Demo1 extends AdventureScene {
                     door.setText("🚪 unlocked door");
                     this.gotoScene('demo2');
                 }
-            })
+            }) */
 
     }
 }
@@ -172,6 +173,10 @@ class Demo2 extends AdventureScene {
     constructor() {
         super("demo2", "The second room has a long name (it truly does).");
     }
+    preload() {
+
+    }
+
     onEnter() {
         this.add.text(this.w * 0.3, this.w * 0.4, "just go back")
             .setFontSize(this.s * 2)
