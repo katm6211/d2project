@@ -102,9 +102,9 @@ class Demo1 extends AdventureScene {
                 } else if (pointer.x > sprite.x && slope <= 1) {
                     sprite.anims.play('right', true);
                 }
-                if (pointer.x < sprite.x && slope > 1) {
+                if (pointer.y < sprite.y && slope > 1) {
                     sprite.anims.play('back', true);
-                } else if (pointer.x > sprite.x && slope > 1) {
+                } else if (pointer.y > sprite.y && slope > 1) {
                     sprite.anims.play('front', true);
                 }
             }
