@@ -13,7 +13,7 @@ class Demo1 extends AdventureScene {
     onEnter() {
         const { width, height } = this.scale;
         const bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
-        const sprite = this.sprite = this.physics.add.sprite(100, 450, 'sprite').setScale(4);
+        const sprite = this.sprite = this.physics.add.sprite(200, 450, 'sprite').setScale(4);
 
         this.input.on('pointerup', (pointer) => {
             sprite.body.reset(sprite.x, sprite.y);
