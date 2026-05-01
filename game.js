@@ -4,7 +4,7 @@ class Demo1 extends AdventureScene {
     }
     preload() {
         this.load.setBaseURL('https://katm6211.github.io/d2project/');
-        this.load.image('bg', 'Assets/Sprite/Background_plain2.png');
+        this.load.image('bg', 'Assets/Sprite/Background3.png');
         this.load.image('bed', 'Assets/Sprite/bed.png');
         this.load.image('desk', 'Assets/Sprite/desk.png');
         this.load.image('door', 'Assets/Sprite/Door.png');
@@ -58,7 +58,9 @@ class Demo1 extends AdventureScene {
         const { width, height } = this.scale;
         const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
         const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4);
-        const door = this.door = this.physics.add.sprite()
+        const door = this.door = this.add.image(width * 3 / 4 / 2, height / 2, 'door').setScale(4);
+
+        Phaser.Display.Align.To.TopCenter(door, bg);
 
         this.anims.create({
             key: 'left',
