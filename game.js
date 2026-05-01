@@ -5,54 +5,94 @@ class Demo1 extends AdventureScene {
     preload() {
         this.load.setBaseURL('https://katm6211.github.io/d2project/');
         this.load.image('bg', 'Assets/Sprite/Background_plain2.png');
+        
         this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite.png', { frameWidth: 16, frameHeight: 32 });
     }
 
+    update() {
+        const bg = this.bg;
+        const sprite = this.sprite;
+
+        if (sprite && sprite.body && bg && (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0)) {
+            const nextX = sprite.x + (sprite.body.velocity.x / 60);
+            const nextY = sprite.y + (sprite.body.velocity.y / 60);
+
+            const ghostRect = new Phaser.Geom.Rectangle(
+                nextX - (sprite.displayWidth * sprite.originX),
+                nextY - (sprite.displayHeight * sprite.originY),
+                sprite.displayWidth,
+                sprite.displayHeight
+            );
+
+            const bgBounds = bg.getBounds();
+            if (Phaser.Geom.Intersects.RectangleToRectangle(ghostRect, bgBounds)) {
+                const halfW = (sprite.displayWidth / 2);
+                const halfH = (sprite.displayHeight / 2);
+
+                const points = [
+                    { x: nextX - halfW, y: nextY },
+                    { x: nextX + halfW, y: nextY },
+                    { x: nextX, y: nextY - halfH },
+                    { x: nextX, y: nextY + halfH }
+                ];
+
+                let collisionDetected = points.some(p => {
+                    const localX = (p.x - bgBounds.x) / bg.scaleX;
+                    const localY = (p.y - bgBounds.y) / bg.scaleY;
+                    return this.textures.getPixelAlpha(localX, localY, 'bg') === 0;
+                });
+
+                if (collisionDetected) {
+                    sprite.body.reset(sprite.x, sprite.y);
+                    sprite.anims.stop();
+                }
+            }
+        }
+
+    }
 
 
     onEnter() {
         const { width, height } = this.scale;
-        const bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
-        const sprite = this.sprite = this.physics.add.sprite(200, 450, 'sprite').setScale(4);
+        const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
+        const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4);
 
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('sprite', { start: 0, end: 2 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'front',
+            frames: this.anims.generateFrameNumbers('sprite', { start: 6, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('sprite', { start: 3, end: 5 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'back',
+            frames: this.anims.generateFrameNumbers('sprite', { start: 9, end: 11 }),
+            frameRate: 10,
+            repeat: -1
+        });
         this.input.on('pointerup', (pointer) => {
             sprite.body.reset(sprite.x, sprite.y);
             sprite.anims.stop();
         });
-        
+
         this.input.on('pointerdown', (pointer) => {
-
-
             this.physics.moveToObject(sprite, pointer, 200);
-            this.anims.create({
-                key: 'left',
-                frames: this.anims.generateFrameNumbers('sprite', { start: 0, end: 2 }),
-                frameRate: 10,
-                repeat: -1
-            });
-            this.anims.create({
-                key: 'front',
-                frames: this.anims.generateFrameNumbers('sprite', { start: 6, end: 8 }),
-                frameRate: 10,
-                repeat: -1
-            });
-            this.anims.create({
-                key: 'right',
-                frames: this.anims.generateFrameNumbers('sprite', { start: 3, end: 5 }),
-                frameRate: 10,
-                repeat: -1
-            });
-            this.anims.create({
-                key: 'back',
-                frames: this.anims.generateFrameNumbers('sprite', { start: 9, end: 11 }),
-                frameRate: 10,
-                repeat: -1
-            });
 
             if (pointer.x == sprite.x && pointer.y < sprite.y) {
-                sprite.anims.play('back', true);
-            } else if (pointer.x == sprite.x && pointer.y > sprite.y) {
                 sprite.anims.play('front', true);
+            } else if (pointer.x == sprite.x && pointer.y > sprite.y) {
+                sprite.anims.play('back', true);
             } else {
                 const slope = Math.abs((pointer.y - sprite.y) / (pointer.x - sprite.x))
                 if (pointer.x < sprite.x && slope <= 1) {
