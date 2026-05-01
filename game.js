@@ -5,7 +5,9 @@ class Demo1 extends AdventureScene {
     preload() {
         this.load.setBaseURL('https://katm6211.github.io/d2project/');
         this.load.image('bg', 'Assets/Sprite/Background_plain2.png');
-        
+        this.load.image('bed', 'Assets/Sprite/bed.png');
+        this.load.image('desk', 'Assets/Sprite/desk.png');
+        this.load.image('door', 'Assets/Sprite/Door.png');
         this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite.png', { frameWidth: 16, frameHeight: 32 });
     }
 
