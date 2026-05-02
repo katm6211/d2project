@@ -4,7 +4,7 @@ class Demo1 extends AdventureScene {
     }
     preload() {
         this.load.setBaseURL('https://katm6211.github.io/d2project/');
-        this.load.image('bg', 'Assets/Sprite/Background3.png');
+        this.load.image('bg', 'Assets/Sprite/Background_plain2.png');
         this.load.image('bed', 'Assets/Sprite/bed.png');
         this.load.image('desk', 'Assets/Sprite/desk.png');
         this.load.image('door', 'Assets/Sprite/Door.png');
@@ -14,162 +14,164 @@ class Demo1 extends AdventureScene {
     update() {
         const bg = this.bg;
         const sprite = this.sprite;
+        const door = this.door;
 
-        if (sprite && sprite.body && bg && (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0)) {
-            const nextX = sprite.x + (sprite.body.velocity.x / 60);
-            const nextY = sprite.y + (sprite.body.velocity.y / 60);
 
-            const ghostRect = new Phaser.Geom.Rectangle(
-                nextX - (sprite.displayWidth * sprite.originX),
-                nextY - (sprite.displayHeight * sprite.originY),
-                sprite.displayWidth,
-                sprite.displayHeight
-            );
 
-            const bgBounds = bg.getBounds();
-            if (Phaser.Geom.Intersects.RectangleToRectangle(ghostRect, bgBounds)) {
-                const halfW = (sprite.displayWidth / 2);
-                const halfH = (sprite.displayHeight / 2);
 
-                const points = [
-                    { x: nextX - halfW, y: nextY },
-                    { x: nextX + halfW, y: nextY },
-                    { x: nextX, y: nextY - halfH },
-                    { x: nextX, y: nextY + halfH }
-                ];
+            if (sprite && sprite.body && bg && (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0)) {
+                const nextX = sprite.x + (sprite.body.velocity.x / 60);
+                const nextY = sprite.y + (sprite.body.velocity.y / 60);
 
-                let collisionDetected = points.some(p => {
-                    const localX = (p.x - bgBounds.x) / bg.scaleX;
-                    const localY = (p.y - bgBounds.y) / bg.scaleY;
-                    return this.textures.getPixelAlpha(localX, localY, 'bg') === 0;
-                });
+                const ghostRect = new Phaser.Geom.Rectangle(
+                    nextX - (sprite.displayWidth * sprite.originX),
+                    nextY - (sprite.displayHeight * sprite.originY),
+                    sprite.displayWidth,
+                    sprite.displayHeight
+                );
 
-                if (collisionDetected) {
-                    sprite.body.reset(sprite.x, sprite.y);
-                    sprite.anims.stop();
+                const bgBounds = bg.getBounds();
+                if (Phaser.Geom.Intersects.RectangleToRectangle(ghostRect, bgBounds)) {
+                    const halfW = (sprite.displayWidth / 2);
+                    const halfH = (sprite.displayHeight / 2);
+
+                    const points = [
+                        { x: nextX - halfW, y: nextY },
+                        { x: nextX + halfW, y: nextY },
+                        { x: nextX, y: nextY - halfH },
+                        { x: nextX, y: nextY + halfH }
+                    ];
+
+                    let collisionDetected = points.some(p => {
+                        const localX = (p.x - bgBounds.x) / bg.scaleX;
+                        const localY = (p.y - bgBounds.y) / bg.scaleY;
+                        return this.textures.getPixelAlpha(localX, localY, 'bg') === 0;
+                    });
+
+                    if (collisionDetected) {
+                        sprite.body.reset(sprite.x, sprite.y);
+                        sprite.anims.stop();
+                    }
                 }
             }
+
         }
 
-    }
 
+        onEnter() {
+            const { width, height } = this.scale;
+            const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
+            const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4);
+            const door = this.door = this.add.image(width * 3 / 4 / 2, height / 2, 'door').setScale(4);
 
-    onEnter() {
-        const { width, height } = this.scale;
-        const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
-        const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4);
-        const door = this.door = this.add.image(width * 3 / 4 / 2, height / 2, 'door').setScale(4);
-
-        Phaser.Display.Align.To.TopCenter(door, bg);
-
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('sprite', { start: 0, end: 2 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'front',
-            frames: this.anims.generateFrameNumbers('sprite', { start: 6, end: 8 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('sprite', { start: 3, end: 5 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.anims.create({
-            key: 'back',
-            frames: this.anims.generateFrameNumbers('sprite', { start: 9, end: 11 }),
-            frameRate: 10,
-            repeat: -1
-        });
-        this.input.on('pointerup', (pointer) => {
-            sprite.body.reset(sprite.x, sprite.y);
-            sprite.anims.stop();
-        });
-
-        this.input.on('pointerdown', (pointer) => {
-            this.physics.moveToObject(sprite, pointer, 200);
-
-            if (pointer.x == sprite.x && pointer.y < sprite.y) {
-                sprite.anims.play('front', true);
-            } else if (pointer.x == sprite.x && pointer.y > sprite.y) {
-                sprite.anims.play('back', true);
-            } else {
-                const slope = Math.abs((pointer.y - sprite.y) / (pointer.x - sprite.x))
-                if (pointer.x < sprite.x && slope <= 1) {
-                    sprite.anims.play('left', true);
-                } else if (pointer.x > sprite.x && slope <= 1) {
-                    sprite.anims.play('right', true);
-                }
-                if (pointer.y < sprite.y && slope > 1) {
-                    sprite.anims.play('back', true);
-                } else if (pointer.y > sprite.y && slope > 1) {
-                    sprite.anims.play('front', true);
-                }
-            }
-        });
-
-
-
-        let clip = this.add.text(this.w * 0.3, this.w * 0.3, "📎 paperclip")
-            .setFontSize(this.s * 2)
-            .setInteractive()
-            .on('pointerover', () => this.showMessage("Metal, bent."))
-            .on('pointerdown', () => {
-                this.showMessage("No touching!");
-                this.tweens.add({
-                    targets: clip,
-                    x: '+=' + this.s,
-                    repeat: 2,
-                    yoyo: true,
-                    ease: 'Sine.inOut',
-                    duration: 100
-                });
+            this.anims.create({
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 0, end: 2 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'front',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 6, end: 8 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 3, end: 5 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'back',
+                frames: this.anims.generateFrameNumbers('sprite', { start: 9, end: 11 }),
+                frameRate: 10,
+                repeat: -1
+            });
+            this.input.on('pointerup', (pointer) => {
+                sprite.body.reset(sprite.x, sprite.y);
+                sprite.anims.stop();
             });
 
-        let key = this.add.text(this.w * 0.5, this.w * 0.1, "🔑 key")
-            .setFontSize(this.s * 2)
-            .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage("It's a nice key.")
-            })
-            .on('pointerdown', () => {
-                this.showMessage("You pick up the key.");
-                this.gainItem('key');
-                this.tweens.add({
-                    targets: key,
-                    y: `-=${2 * this.s}`,
-                    alpha: { from: 1, to: 0 },
-                    duration: 500,
-                    onComplete: () => key.destroy()
-                });
-            })
+            this.input.on('pointerdown', (pointer) => {
+                this.physics.moveToObject(sprite, pointer, 200);
 
- /*       let door = this.add.text(this.w * 0.1, this.w * 0.15, "🚪 locked door")
-            .setFontSize(this.s * 2)
-            .setInteractive()
-            .on('pointerover', () => {
-                if (this.hasItem("key")) {
-                    this.showMessage("You've got the key for this door.");
+                if (pointer.x == sprite.x && pointer.y < sprite.y) {
+                    sprite.anims.play('front', true);
+                } else if (pointer.x == sprite.x && pointer.y > sprite.y) {
+                    sprite.anims.play('back', true);
                 } else {
-                    this.showMessage("It's locked. Can you find a key?");
+                    const slope = Math.abs((pointer.y - sprite.y) / (pointer.x - sprite.x))
+                    if (pointer.x < sprite.x && slope <= 1) {
+                        sprite.anims.play('left', true);
+                    } else if (pointer.x > sprite.x && slope <= 1) {
+                        sprite.anims.play('right', true);
+                    }
+                    if (pointer.y < sprite.y && slope > 1) {
+                        sprite.anims.play('back', true);
+                    } else if (pointer.y > sprite.y && slope > 1) {
+                        sprite.anims.play('front', true);
+                    }
                 }
-            })
-            .on('pointerdown', () => {
-                if (this.hasItem("key")) {
-                    this.loseItem("key");
-                    this.showMessage("*squeak*");
-                    door.setText("🚪 unlocked door");
-                    this.gotoScene('demo2');
-                }
-            }) */
+            });
 
+
+
+            /*  let clip = this.add.text(this.w * 0.3, this.w * 0.3, "📎 paperclip")
+                  .setFontSize(this.s * 2)
+                  .setInteractive()
+                  .on('pointerover', () => this.showMessage("Metal, bent."))
+                  .on('pointerdown', () => {
+                      this.showMessage("No touching!");
+                      this.tweens.add({
+                          targets: clip,
+                          x: '+=' + this.s,
+                          repeat: 2,
+                          yoyo: true,
+                          ease: 'Sine.inOut',
+                          duration: 100
+                      });
+                  });
+      
+              let key = this.add.text(this.w * 0.5, this.w * 0.1, "🔑 key")
+                  .setFontSize(this.s * 2)
+                  .setInteractive()
+                  .on('pointerover', () => {
+                      this.showMessage("It's a nice key.")
+                  })
+                  .on('pointerdown', () => {
+                      this.showMessage("You pick up the key.");
+                      this.gainItem('key');
+                      this.tweens.add({
+                          targets: key,
+                          y: `-=${2 * this.s}`,
+                          alpha: { from: 1, to: 0 },
+                          duration: 500,
+                          onComplete: () => key.destroy()
+                      });
+                  })
+      
+              let door = this.add.text(this.w * 0.1, this.w * 0.15, "🚪 locked door")
+                  .setFontSize(this.s * 2)
+                  .setInteractive()
+                  .on('pointerover', () => {
+                      if (this.hasItem("key")) {
+                          this.showMessage("You've got the key for this door.");
+                      } else {
+                          this.showMessage("It's locked. Can you find a key?");
+                      }
+                  })
+                  .on('pointerdown', () => {
+                      if (this.hasItem("key")) {
+                          this.loseItem("key");
+                          this.showMessage("*squeak*");
+                          door.setText("🚪 unlocked door");
+                          this.gotoScene('demo2');
+                      }
+                  }) */
+
+        }
     }
-}
 
 class Demo2 extends AdventureScene {
     constructor() {
