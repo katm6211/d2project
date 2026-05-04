@@ -8,7 +8,7 @@ class Demo1 extends AdventureScene {
         this.load.image('bed', 'Assets/Sprite/bed.png');
         this.load.image('desk', 'Assets/Sprite/desk.png');
         this.load.image('door', 'Assets/Sprite/door2.png');
-        this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite2.png', { frameWidth: 16, frameHeight: 32 });
+        this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite2.2.png', { frameWidth: 14, frameHeight: 30 });
     }
 
     update() {
