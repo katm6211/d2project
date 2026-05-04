@@ -5,69 +5,97 @@ class Demo1 extends AdventureScene {
     preload() {
         this.load.setBaseURL('https://katm6211.github.io/d2project/');
         this.load.image('bg', 'Assets/Sprite/Background3.png');
-        this.load.image('bed', 'Assets/Sprite/bed.png');
-        this.load.image('desk', 'Assets/Sprite/desk.png');
+        this.load.image('bed', 'Assets/Sprite/bed2.png');
+        this.load.image('desk', 'Assets/Sprite/desk2.png');
         this.load.image('door', 'Assets/Sprite/door2.png');
         this.load.spritesheet('sprite', 'Assets/Sprite/totalsprite2.2.png', { frameWidth: 14, frameHeight: 30 });
     }
 
     update() {
-        const bg = this.bg;
-        const sprite = this.sprite;
-        const door = this.door;
+        const { bg, sprite, bed, door, desk } = this;
 
         if (sprite && sprite.body && bg && (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0)) {
-            const nextX = sprite.x + (sprite.body.velocity.x / 60);
-            const nextY = sprite.y + (sprite.body.velocity.y / 60);
 
-            const ghostRect = new Phaser.Geom.Rectangle(
-                nextX - (sprite.displayWidth * sprite.originX),
-                nextY - (sprite.displayHeight * sprite.originY),
-                sprite.displayWidth,
-                sprite.displayHeight
-            );
-
-            const bgBounds = bg.getBounds();
-            if (Phaser.Geom.Intersects.RectangleToRectangle(ghostRect, bgBounds)) {
-                const halfW = (sprite.displayWidth / 2);
-                const halfH = (sprite.displayHeight / 2);
-
-                const points = [
-                    { x: nextX - halfW, y: nextY },
-                    { x: nextX + halfW, y: nextY },
-                    { x: nextX, y: nextY - halfH },
-                    { x: nextX, y: nextY + halfH }
-                ];
-
-                let collisionDetected = points.some(p => {
-                    const localX = (p.x - bgBounds.x) / bg.scaleX;
-                    const localY = (p.y - bgBounds.y) / bg.scaleY;
-                    return this.textures.getPixelAlpha(localX, localY, 'bg') === 0;
-                });
-
-                if (collisionDetected) {
-                    sprite.body.reset(sprite.x, sprite.y);
-                    sprite.anims.stop();
-                }
-            }
-            if (!Phaser.Geom.Rectangle.ContainsRect(bgBounds, ghostRect)) {
+            if (this.exitDetected(sprite, bg)
+                || this.collisionDetected(sprite, bed)
+                || this.collisionDetected(sprite, desk)
+                || this.collisionDetected(sprite, door)
+            ) {
                 sprite.body.reset(sprite.x, sprite.y);
                 sprite.anims.stop();
             }
         }
+    }
+    collisionDetected(sprite, img) {
+
+        const nextX = sprite.x + (sprite.body.velocity.x / 60);
+        const nextY = sprite.y + (sprite.body.velocity.y / 60);
+
+        const ghostRect = new Phaser.Geom.Rectangle(
+            nextX - (sprite.displayWidth * sprite.originX),
+            nextY - (sprite.displayHeight * sprite.originY),
+            sprite.displayWidth,
+            sprite.displayHeight
+        );
+
+        const imgBounds = img.getBounds();
+        if (Phaser.Geom.Intersects.RectangleToRectangle(imgBounds, ghostRect)) {
+            return true;
+        }
+
+    }
+
+    exitDetected(sprite, img) {
+
+        const nextX = sprite.x + (sprite.body.velocity.x / 60);
+        const nextY = sprite.y + (sprite.body.velocity.y / 60);
+
+        const ghostRect = new Phaser.Geom.Rectangle(
+            nextX - (sprite.displayWidth * sprite.originX),
+            nextY - (sprite.displayHeight * sprite.originY),
+            sprite.displayWidth,
+            sprite.displayHeight
+        );
+
+        const imgBounds = img.getBounds();
+
+        if (Phaser.Geom.Intersects.RectangleToRectangle(ghostRect, imgBounds)) {
+            const halfW = (sprite.displayWidth / 2);
+            const halfH = (sprite.displayHeight / 2);
+
+            const points = [
+                { x: nextX - halfW, y: nextY },
+                { x: nextX + halfW, y: nextY },
+                { x: nextX, y: nextY - halfH },
+                { x: nextX, y: nextY + halfH }
+            ];
+
+            let exitDetected = points.some(p => {
+                const localX = (p.x - imgBounds.x) / img.scaleX;
+                const localY = (p.y - imgBounds.y) / img.scaleY;
+                return this.textures.getPixelAlpha(localX, localY, img.texture.key) === 0;
+            });
+            return exitDetected;
+        }
+            if (!Phaser.Geom.Rectangle.ContainsRect(imgBounds, ghostRect)) {
+                return true; 
+            }
     }
 
 
     onEnter() {
         const { width, height } = this.scale;
         const bg = this.bg = this.add.image(width * 3 / 4 / 2, height / 2, 'bg').setScale(4);
-        const sprite = this.sprite = this.physics.add.sprite(width * 3 / 4 / 2, height / 2, 'sprite').setScale(4).setInteractive({ 
-            pixelPerfect: true, 
-            alphaTolerance: 1 
-        });
+        const sprite = this.sprite = this.physics.add.sprite(bg.x, bg.y, 'sprite').setScale(4);
+        sprite.x = bg.x - 1/2 * bg.displayWidth + 1/2 * sprite.displayWidth;
+        
         const door = this.door = this.add.image(bg.x, bg.y, 'door').setScale(4);
-        door.x = bg.x - 1/8 * bg.displayWidth; 
-        door.y = bg.y - 1/2 * bg.displayHeight - 1/2 * door.displayHeight; 
+        door.x = bg.x - 1 / 8 * bg.displayWidth;
+        door.y = bg.y - 1 / 2 * bg.displayHeight - 1 / 2 * door.displayHeight;
+        const desk = this.desk = this.add.image(bg.x, bg.y, 'desk').setScale(4);
+        desk.y = bg.y - 1 / 2 * bg.displayHeight + 1 / 2 * desk.displayHeight;
+        const bed = this.bed = this.add.image(bg.x, bg.y, 'bed').setScale(4);
+
 
         this.anims.create({
             key: 'left',
