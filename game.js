@@ -248,7 +248,7 @@ class Intro extends Phaser.Scene {
 
     create() {
 
-        this.add.text(50, 50, "Adventure awaits!").setFontSize(50);
+        this.add.text(50, 50, "").setFontSize(50);
         this.add.text(50, 100, "Click anywhere to begin.").setFontSize(20);
         this.input.on('pointerdown', () => {
             this.cameras.main.fade(1000, 0, 0, 0);
